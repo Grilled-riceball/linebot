@@ -4,20 +4,18 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import openai
 import os
-from dotenv import load_dotenv
-
-# .envファイルから環境変数を読み込む
-load_dotenv()
 
 app = Flask(__name__)
 
-# LINE Developersで発行したチャネルアクセストークンとチャネルシークレット
+# LINE Developersで設定した環境変数から値を取得
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
 
-# OpenAIのAPIキー
+# OpenAIのAPIキーを環境変数から取得
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_ORG_ID = os.getenv("OPENAI_ORG_ID")
 
+# 環境変数が設定されているか確認
 if not LINE_CHANNEL_ACCESS_TOKEN or not LINE_CHANNEL_SECRET:
     raise ValueError("LINE_CHANNEL_ACCESS_TOKEN and LINE_CHANNEL_SECRET must be set as environment variables.")
 if not OPENAI_API_KEY:
@@ -44,7 +42,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_message = event.message.text
-
+    
     try:
         # GPT-4o miniにメッセージを送信
         response = openai.chat.completions.create(
@@ -73,4 +71,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # ローカルでデバッグする際は、以下の行をコメントアウトしてください
+    # app.run(host="0.0.0.0", port=port, debug=True)
+    # 本番環境ではGunicornなどがこのファイルを実行します
+    pass
